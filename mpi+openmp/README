@@ -1,0 +1,6 @@
+mpi_omp -> persistent openmp threads
+mpi_nomp_noconv -> no openmp, no convergence test
+mpi_nomp -> no openmp, convergence test
+mpi_collapse4 -> openmp loop, convergence test
+mpi_collapse_noconv4 -> openmp loop, no convergence test
+settings -> all the defines
