@@ -1,5 +1,6 @@
 #include "util.h"
-
+#include <stdio.h>
+#include <string.h>
 /* 
  * XGRID : x dimension of problem grid
  * YGRID : y dimension of problem grid
@@ -34,7 +35,7 @@
 #define EPSILON 0.001f
 #endif
 
-
+void createCsv(const char *fileName, int n, int m);
 void prtdat(const float *u, const char *fnam);
 void inidat(float *u);
 __global__ void update(const float *old_T, float *new_T);
@@ -67,7 +68,7 @@ int main (void) {
         #endif
         printf("Initializing grid and writing initial.dat file...\n");
         inidat(temp);
-        prtdat(temp, "initial.dat");       
+        prtdat(temp, "initial.csv");       
 
         // Copy initial grid to the device 
         CUDA_SAFE_CALL(cudaMemcpy(old_T, temp, grid_size, cudaMemcpyHostToDevice));
@@ -136,7 +137,7 @@ int main (void) {
 
         /* Write final output */
         printf("Writing final.dat file...\n");
-        prtdat(temp, "final.dat");
+        prtdat(temp, "final.csv");
 
         CUDA_SAFE_CALL(cudaEventDestroy(start));
         CUDA_SAFE_CALL(cudaEventDestroy(stop));
@@ -165,19 +166,42 @@ void inidat(float *u) {
 /* Print grid to file fnam */
 void prtdat(const float *u, const char *fnam) {
         FILE *fp;
-
-        fp = fopen(fnam, "w");
+        fp = fopen(fnam, "w+");
         for (unsigned int iy = 0; iy <= YGRID-1; iy++) {
                 for (unsigned int ix = 0; ix <= XGRID-1; ix++) {
                         fprintf(fp, "%6.1f", u[iy*XGRID+ix]);
-                        if (ix != XGRID-1) 
-                                fprintf(fp, " ");
-                        else
+                        if (ix != XGRID-1) {
+                                fprintf(fp, ",");
+			} else {
                                 fprintf(fp, "\n");
-                }
+			
+			}
+		}
         }
+
         fclose(fp);
 }
+
+/*
+void createCsv(const char *fileName, int n, int m) {
+	FILE *fp;
+	int i, j;
+	int a[n][m];
+	//fileName = strcat(fileNam, ".csv");
+	fp = fopen(fileName, "w+");
+	
+	fprintf(fp, "Heat diffusion");
+
+	for (i = 0; i < m; i++) {
+		fprintf(fp, "\n%d", i+1);
+		for (j = 0; j < n; j++) {
+			fprintf(fp, ",%d ", a[i][j]);
+		}
+	}
+	fclose(fp);
+	printf("\n %s file created", fileName);
+}
+*/
 
 /* 
  * Update input grid of temperatures. Map every thread to a cell
