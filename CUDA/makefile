@@ -2,8 +2,7 @@ PROJECT_NAME = heatSim
 
 GCC := g++
 NVCC := nvcc
-
-CPPFLAGS =
+RUN := srun -n 1 --gres=gpu:1
 
 .PHONY: all
 all: build
@@ -15,7 +14,7 @@ $(PROJECT_NAME):heat.o
 	$(NVCC) -o $@ $<
 
 run: build 
-	./$(PROJECT_NAME)
+	$(RUN) $(PROJECT_NAME)
 
 .PHONY: clean
 clean:
